@@ -1,0 +1,45 @@
+import telebot #подключаем библиотеки
+from telebot import types
+import random
+#вводим токен своего телеграмм бота
+bot_token = '6858696692:AAEnGmEdSroKytPSVmQcDoVRCebFchznSXA'
+bot = telebot.TeleBot(bot_token)
+
+#добавляем команду для начала игры
+@bot.message_handler(commands=['start'])
+def f(message):
+    stik = types.ReplyKeyboardMarkup(row_width=3)
+    stik.add(types.KeyboardButton('🗿'), types.KeyboardButton('✂️'), types.KeyboardButton('📄'))
+    #добавляем приветствие с именем пользователя
+    bot.reply_to(message, f"Привет, {message.from_user.first_name}! Предлагаю сыграть в игру 'Камень - ножниц - бумага'! Для начала выбери стикер ниже:",
+                 reply_stik=stik)
+
+#@bot.message_handler()
+#def info(message):
+    #if message.text.lower() == 'Привет':
+        #bot.send_message(message.chat.id, f'Приветик, {message.from_user.first_name} , поиграем?')
+
+#добавляем команду о помощи
+@bot.message_handler(commands=['help'])
+def main(message):
+    bot.send_message(message.chat.id, '/start - начать игру')
+
+@bot.message_handler(func=lambda message: True)
+def game(message):
+    user_choice = message.text
+    bot_choice = random.choice(['🗿', '✂️', '📄'])
+#если игрок не выбрал ни одну из команд
+    if user_choice not in ['🗿', '✂️', '📄']:
+        bot.reply_to(message, "У нас тут важная игра! Используйте стикеры из набора ниже для выбора камня, ножниц или бумаги.")
+        return
+#проверяем условия
+    if user_choice == bot_choice:
+        bot.reply_to(message, f"Ваш выбор {user_choice}, мой {bot_choice}. Ничья!")
+    elif (user_choice == '🗿' and bot_choice == '✂️') or (user_choice == '✂️' and bot_choice == '📄') or (
+            user_choice == '📄' and bot_choice == '🗿'):
+        bot.reply_to(message, f"Ваш выбор {user_choice}, мой {bot_choice}. Вы победили! ")
+    else:
+        bot.reply_to(message, f"Ваш выбор {user_choice},мой {bot_choice}. Я победил!)")
+
+
+bot.polling()
